@@ -1,0 +1,66 @@
+{
+    "editor.fontSize": 16,
+    "editor.fontFamily": "'Cascadia Mono', Consolas, 'Courier New', monospace",
+    "actionButtons": {
+        "commands": [
+            {
+                "cwd": "${workspaceFolder}",
+                "name": "\ud83e\udd79Rebuild",
+                "color": "white",
+                "singleInstance": true,
+                "saveAll": true,
+                "command": ".vscode/Uv4Caller.exe -o ${workspaceFolder}/MDK-ARM/build.log -c 'UV4 -r ${workspaceFolder}/MDK-ARM/hello_fft_nucleo.uvprojx -j0'"
+            },
+            {
+                "cwd": "${workspaceFolder}",
+                "name": "\ud83e\udd70Flash",
+                "color": "white",
+                "singleInstance": true,
+                "command": ".vscode/Uv4Caller.exe -o ${workspaceFolder}/MDK-ARM/build.log -c 'UV4 -f ${workspaceFolder}/MDK-ARM/hello_fft_nucleo.uvprojx -j0'"
+            },
+            {
+                "cwd": "${workspaceFolder}",
+                "name": "\ud83d\udc25Keil",
+                "color": "white",
+                "singleInstance": true,
+                "command": "UV4 ${workspaceFolder}/MDK-ARM/hello_fft_nucleo.uvprojx"
+            },
+            {
+                "cwd": "${workspaceFolder}",
+                "name": "\ud83e\udd14RTT Viewer",
+                "color": "white",
+                "singleInstance": true,
+                "command": "openocd -f ./.vscode/openocd_daplink.cfg -f ./.vscode/openocd_rtt.cfg & telnet localhost 8888"
+            },
+            {
+                "cwd": "${workspaceFolder}",
+                "name": "\ud83e\uddd0Monitor",
+                "color": "white",
+                "singleInstance": true,
+                "command": ".vscode/monitor.ps1"
+            }
+        ],
+        "defaultColor": "white",
+        "reloadButton": "\ud83e\udee1",
+        "loadNpmCommands": false
+    },
+    "files.associations": {
+        "stdint.h": "c",
+        "printf.h": "c",
+        "gpio.h": "c"
+    },
+    "C_Cpp.default.includePath": [
+        "Core/Inc",
+        "Drivers/STM32F4xx_HAL_Driver/Inc",
+        "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy",
+        "Drivers/CMSIS/Device/ST/STM32F4xx/Include",
+        "Drivers/CMSIS/Include",
+        "Middlewares/ST/ARM/DSP/Inc",
+        "Libraries\\printf"
+    ],
+    "C_Cpp.default.defines": [
+        "USE_HAL_DRIVER",
+        "STM32F446xx",
+        "ARM_MATH_CM4"
+    ]
+}
