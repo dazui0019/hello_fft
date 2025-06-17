@@ -28,6 +28,9 @@
 /* USER CODE BEGIN Includes */
 #include "arm_math.h"
 #include "printf.h"
+#include "driver_ws2812b_write_test.h"
+#include "driver_ws2812b_basic.h"
+#include "ws28xx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,6 +58,10 @@ float32_t fft_input_buffer[FFT_SIZE * 2];  // 实部和虚部交错存储
 float32_t fft_output_buffer[FFT_SIZE/2];   // FFT幅度输出(只需要前一半)
 arm_cfft_radix4_instance_f32 fft_instance; // FFT实例
 float32_t sampling_frequency = 10000.0f;   // 采样频率，需要根据您的定时器配置调整
+
+WS28XX_HandleTypeDef hLed;
+
+uint32_t DMA_Buffer[8] = {50, 50, 50, 50, 50, 50, 50, 50};
 
 /* USER CODE END PV */
 
@@ -103,17 +110,29 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM2_Init();
   MX_USART2_UART_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   __HAL_DMA_CLEAR_FLAG(hadc1.DMA_Handle, DMA_FLAG_TCIF0_4|DMA_FLAG_HTIF0_4);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_Value, FFT_SIZE);
   HAL_TIM_Base_Start(&htim2);
   printf("Hello, FFT!\r\n");
+  WS28XX_Init(&hLed, &htim3, 90, TIM_CHANNEL_2, 64);
+  WS28XX_SetPixel_RGB_888(&hLed, 0, COLOR_RGB888_PURPLE);
+  WS28XX_SetPixel_RGB_888(&hLed, 8, COLOR_RGB888_PURPLE);
+  WS28XX_SetPixel_RGB_888(&hLed, 16, COLOR_RGB888_PURPLE);
+  WS28XX_SetPixel_RGB_888(&hLed, 24, COLOR_RGB888_PURPLE);
+  WS28XX_SetPixel_RGB_888(&hLed, 32, COLOR_RGB888_PURPLE);
+  WS28XX_SetPixel_RGB_888(&hLed, 40, COLOR_RGB888_PURPLE);
+  WS28XX_SetPixel_RGB_888(&hLed, 48, COLOR_RGB888_PURPLE);
+
+  WS28XX_Update(&hLed);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    WS28XX_Update(&hLed);
     if(FFT_Flag == 1){
       FFT_Flag = 0;
 
@@ -141,8 +160,6 @@ int main(void)
       // printf("主要频率: %.2f Hz, 幅度: %.2f\r\n", frequency, max_value);
       printf("%.2f\r\n", frequency);
 
-      
-      
       // 重新启动ADC采集
       HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_Value, FFT_SIZE);
       HAL_TIM_Base_Start(&htim2);

@@ -47,7 +47,8 @@
     "files.associations": {
         "stdint.h": "c",
         "printf.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "driver_ws2812b_basic.h": "c"
     },
     "C_Cpp.default.includePath": [
         "Core/Inc",
@@ -56,11 +57,15 @@
         "Drivers/CMSIS/Device/ST/STM32F4xx/Include",
         "Drivers/CMSIS/Include",
         "Middlewares/ST/ARM/DSP/Inc",
-        "Libraries\\printf"
+        "Libraries/printf",
+        "Libraries/ws2812b/src",
+        "Libraries/ws2812b/interface",
+        "Libraries/ws2812b/example",
+        "Libraries/ws2812b/test",
+        "Libraries\\ws28xx"
     ],
     "C_Cpp.default.defines": [
         "USE_HAL_DRIVER",
-        "STM32F446xx",
-        "ARM_MATH_CM4"
+        "STM32F446xx"
     ]
 }
