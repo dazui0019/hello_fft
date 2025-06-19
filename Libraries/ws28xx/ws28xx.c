@@ -5,7 +5,6 @@
 
 #include "ws28xx.h"
 #include <string.h>
-#include "printf.h"
 
 #if WS28XX_RTOS == WS28XX_RTOS_DISABLE
 #elif WS28XX_RTOS == WS28XX_RTOS_CMSIS_V1

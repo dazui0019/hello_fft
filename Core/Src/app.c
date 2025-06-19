@@ -7,6 +7,8 @@
 
 #define FFT_SIZE 1024
 
+void vol2led(float32_t vol);
+
 uint16_t ADC_Value[FFT_SIZE];
 __IO uint8_t FFT_Flag = 0;
 
@@ -29,16 +31,6 @@ void setup(void)
     HAL_TIM_Base_Start(&htim2);
     printf("Hello, FFT!\r\n");
     WS28XX_Init(&hLed, &htim3, 90, TIM_CHANNEL_2, 64);
-    WS28XX_SetPixel_RGB_888(&hLed, 0, COLOR_RGB888_PURPLE);
-    WS28XX_SetPixel_RGB_888(&hLed, 8, COLOR_RGB888_PURPLE);
-    WS28XX_SetPixel_RGB_888(&hLed, 16, COLOR_RGB888_PURPLE);
-    WS28XX_SetPixel_RGB_888(&hLed, 24, COLOR_RGB888_PURPLE);
-    WS28XX_SetPixel_RGB_888(&hLed, 32, COLOR_RGB888_PURPLE);
-    WS28XX_SetPixel_RGB_888(&hLed, 40, COLOR_RGB888_PURPLE);
-    WS28XX_SetPixel_RGB_888(&hLed, 48, COLOR_RGB888_PURPLE);
-    WS28XX_SetPixel_RGB_888(&hLed, 56, COLOR_RGB888_PURPLE);
-  
-    WS28XX_Update(&hLed);
 }
 
 void loop(void)
@@ -62,9 +54,66 @@ void loop(void)
     // 只计算小于奈奎斯特频率的幅度谱
     arm_cmplx_mag_f32(fft_input_buffer, fft_output_buffer, FFT_SIZE/2);
 
+    // 计算1K-1.5KHz的FFT幅度
+    float32_t freq_resolution = sampling_frequency / FFT_SIZE;  // 频率分辨率
+    int start_bin = (int)(1000.0f / freq_resolution);          // 1KHz对应的频率bin
+    int end_bin = (int)(1500.0f / freq_resolution);            // 1.5KHz对应的频率bin
+    
+    // 计算指定频率范围内的平均幅度
+    float32_t total_magnitude = 0.0f;
+    for(int i = start_bin; i <= end_bin && i < FFT_SIZE/2; i++){
+        total_magnitude += fft_output_buffer[i];
+    }
+    float32_t avg_magnitude = total_magnitude / (end_bin - start_bin + 1);
+    
+    // 根据音频幅值控制LED
+    vol2led(avg_magnitude);
+
     // 重新启动ADC采集
     HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_Value, FFT_SIZE);
     HAL_TIM_Base_Start(&htim2);
+}
+
+void vol2led(float32_t vol)
+{
+    // 给vol添加一阶滞后滤波
+    static float32_t vol_last = 0.0f;
+    vol = 0.4f * vol + 0.6f * vol_last;
+    vol_last = vol;
+    
+    // 先清除所有LED
+    for(int i = 0; i < 8; i++){
+        WS28XX_SetPixel_RGB_888(&hLed, (i*8), COLOR_RGB888_BLACK);
+        WS28XX_SetPixel_RGB_888(&hLed, (i*8)+7, COLOR_RGB888_BLACK);
+    }
+    
+    // 将平滑后的音频幅值映射到0-8范围（LED数量）
+    float32_t scale_factor = 0.001f;  // 根据实际情况调整
+    float32_t led_count_float = vol_last * scale_factor;
+    
+    // 在转换成int之前做滞后处理
+    static float32_t prev_led_count_float = 0.0f;
+    float32_t hysteresis_threshold = 0.8f;  // 滞后阈值
+    
+    if(led_count_float > prev_led_count_float + hysteresis_threshold) {
+        prev_led_count_float = led_count_float;
+    } else if(led_count_float < prev_led_count_float - hysteresis_threshold) {
+        prev_led_count_float = led_count_float;
+    } else {
+        led_count_float = prev_led_count_float;  // 保持上一次的值
+    }
+    
+    int led_count = (int)led_count_float;
+    
+    // 限制LED数量在合理范围内
+    if(led_count > 8) led_count = 8;
+    if(led_count < 0) led_count = 0;
+    
+    // 点亮对应数量的LED
+    for(int i = 0; i < led_count; i++){
+        WS28XX_SetPixel_RGBW_888(&hLed, (i*8), COLOR_RGB888_PURPLE, 150);
+        WS28XX_SetPixel_RGBW_888(&hLed, (i*8)+7, COLOR_RGB888_PURPLE, 150);
+    }
 }
 
 // dma 中断回调函数
