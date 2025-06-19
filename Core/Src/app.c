@@ -88,16 +88,21 @@ void vol2led(float32_t vol)
     }
 
     // 自适应对数映射
-    static float32_t max_vol = 5000.0f;
-    static float32_t min_vol = 10.0f;
+    static float32_t max_vol = 15000.0f;
+    static float32_t min_vol = 500.0f;
 
     // 更新动态范围
     if(vol_last > max_vol) {
         max_vol = vol_last * 0.8f + max_vol * 0.2f;
+    } else {
+        // max_vol的最小值为15000.0f
+        if(max_vol > 15000.0f){
+            // 当音量低于最大值时，让最大值缓慢衰减
+            max_vol = max_vol * 0.999f; // 每次衰减0.1%
+        }
     }
-    if(vol_last < min_vol && vol_last > 1.0f) {
-        min_vol = vol_last * 0.2f + min_vol * 0.8f;
-    }
+
+    printf("vol: %f, max_vol: %f, min_vol: %f\n", vol_last, max_vol, min_vol);
 
     // 对数映射
     float32_t log_vol = log10f((vol_last - min_vol) / (max_vol - min_vol) + 1.0f);
