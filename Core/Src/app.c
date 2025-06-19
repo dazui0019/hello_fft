@@ -86,23 +86,23 @@ void vol2led(float32_t vol)
         WS28XX_SetPixel_RGB_888(&hLed, (i*8), COLOR_RGB888_BLACK);
         WS28XX_SetPixel_RGB_888(&hLed, (i*8)+7, COLOR_RGB888_BLACK);
     }
-    
-    // 将平滑后的音频幅值映射到0-8范围（LED数量）
-    float32_t scale_factor = 0.001f;  // 根据实际情况调整
-    float32_t led_count_float = vol_last * scale_factor;
-    
-    // 在转换成int之前做滞后处理
-    static float32_t prev_led_count_float = 0.0f;
-    float32_t hysteresis_threshold = 0.8f;  // 滞后阈值
-    
-    if(led_count_float > prev_led_count_float + hysteresis_threshold) {
-        prev_led_count_float = led_count_float;
-    } else if(led_count_float < prev_led_count_float - hysteresis_threshold) {
-        prev_led_count_float = led_count_float;
-    } else {
-        led_count_float = prev_led_count_float;  // 保持上一次的值
+
+    // 自适应对数映射
+    static float32_t max_vol = 5000.0f;
+    static float32_t min_vol = 10.0f;
+
+    // 更新动态范围
+    if(vol_last > max_vol) {
+        max_vol = vol_last * 0.8f + max_vol * 0.2f;
     }
-    
+    if(vol_last < min_vol && vol_last > 1.0f) {
+        min_vol = vol_last * 0.2f + min_vol * 0.8f;
+    }
+
+    // 对数映射
+    float32_t log_vol = log10f((vol_last - min_vol) / (max_vol - min_vol) + 1.0f);
+    float32_t led_count_float = log_vol * 8.0f / log10f(2.0f);  // 映射到0-8
+
     int led_count = (int)led_count_float;
     
     // 限制LED数量在合理范围内
