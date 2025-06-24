@@ -1,3 +1,4 @@
 MDK-ARM/build.log
 MDK-ARM/build.log.lock
 MDK-ARM/hello_fft_nucleo/*
+.cache

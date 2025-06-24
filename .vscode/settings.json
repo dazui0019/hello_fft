@@ -48,7 +48,10 @@
         "stdint.h": "c",
         "printf.h": "c",
         "gpio.h": "c",
-        "driver_ws2812b_basic.h": "c"
+        "driver_ws2812b_basic.h": "c",
+        "main.h": "c",
+        "ws28xx.h": "c",
+        "arm_math.h": "c"
     },
     "C_Cpp.default.includePath": [
         "Core/Inc",
@@ -68,25 +71,7 @@
         "USE_HAL_DRIVER",
         "STM32F446xx"
     ],
-    "clangd.fallbackFlags": [
-        "-I${workspaceFolder}/Core/Inc",
-        "-I${workspaceFolder}/Drivers/STM32F4xx_HAL_Driver/Inc",
-        "-I${workspaceFolder}/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy",
-        "-I${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32F4xx/Include",
-        "-I${workspaceFolder}/Drivers/CMSIS/Include",
-        "-I${workspaceFolder}/Middlewares/ST/ARM/DSP/Inc",
-        "-I${workspaceFolder}/Libraries/printf",
-        "-I${workspaceFolder}/Libraries/ws2812b/src",
-        "-I${workspaceFolder}/Libraries/ws2812b/interface",
-        "-I${workspaceFolder}/Libraries/ws2812b/example",
-        "-I${workspaceFolder}/Libraries/ws2812b/test",
-        "-I${workspaceFolder}/Libraries/ws28xx",
-        "-DUSE_HAL_DRIVER",
-        "-DSTM32F446xx",
-        "-D__GNUC__",
-        "-target", "arm-none-eabi",
-        "--sysroot=D:/Toolchain/arm-gnu-toolchain-14.2.rel1-mingw-w64-x86_64-arm-none-eabi/arm-none-eabi",
-    ],
     "cmake.ignoreCMakeListsMissing": true,
-    "clangd.path": "D:\\Program Files\\LLVM\\bin\\clangd.exe"
+    "clangd.path": "D:\\Program Files\\LLVM\\bin\\clangd.exe",
+    "clangd.onConfigChanged": "restart"
 }
